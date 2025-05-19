@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  grpc-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: grpc_server_app
+    ports:
+      - "50051:50051"
+    environment:
+      DB_USER: "appuser"
+      DB_PASSWORD: "apppassword"
+      DB_HOST: "mysql-db"
+      DB_PORT: "3306"
+      DB_NAME: "appdb"
+      GRPC_PORT: "50051"
+      # TZ: "Africa/Johannesburg" # Kept as an example of a configurable, potentially useful commented-out setting
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql_database
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "verystrongrootpassword"
+      MYSQL_DATABASE: "appdb"
+      MYSQL_USER: "appuser"
+      MYSQL_PASSWORD: "apppassword"
+      # TZ: "Africa/Johannesburg" # Kept as an example
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ../init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge

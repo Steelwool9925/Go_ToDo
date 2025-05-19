@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "./api";
+
+// TaskService defines the gRPC service for managing tasks.
+service TaskService {
+  // GetTasks fetches a list of all tasks.
+  rpc GetTasks (GetTasksRequest) returns (GetTasksReply);
+
+  // AddTask adds a new task to the system.
+  rpc AddTask (AddTaskRequest) returns (AddTaskReply);
+
+  // CompleteTask marks an existing task as completed.
+  rpc CompleteTask (CompleteTaskRequest) returns (CompleteTaskReply);
+}
+
+// Task represents a single task item.
+message Task {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string status = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+// GetTasksRequest is the request message for GetTasks RPC.
+message GetTasksRequest {}
+
+// GetTasksReply is the response message for GetTasks RPC.
+message GetTasksReply {
+  repeated Task tasks = 1;
+}
+
+// AddTaskRequest is the request message for AddTask RPC.
+message AddTaskRequest {
+  string title = 1;
+  string description = 2;
+  string status = 3;
+}
+
+// AddTaskReply is the response message for AddTask RPC.
+message AddTaskReply {
+  Task task = 1;
+}
+
+// CompleteTaskRequest is the request message for CompleteTask RPC.
+message CompleteTaskRequest {
+  string task_id = 1;
+}
+
+// CompleteTaskReply is the response message for CompleteTask RPC.
+message CompleteTaskReply {
+  Task task = 1;
+}
